@@ -1,6 +1,7 @@
+from celery import shared_task
+from pathlib import Path
 import subprocess
 import platform
-from celery import shared_task
 
 @shared_task
 def run_external_script():
@@ -8,20 +9,18 @@ def run_external_script():
 
     if "Sariks-MacBook" in system_name:
         # Local MacBook
-        script_path = "/Users/sariksadman/works/qirios/sms_tracking/call_log_track.py"
-        python_path = "/Users/sariksadman/works/qirios/sms_tracking/venv/bin/python3"
-        envd = "/Users/sariksadman/works/qirios/sms_tracking"  # sets working directory
-
+        base_path = Path("/Users/sariksadman/works/qirios/sms_tracking")
     else:
         # VPS
-        script_path = "/home/ubuntu/scripts/call_log_track.py"
-        python_path = "/home/ubuntu/scripts/venv/bin/python3"
-        envd = "/Users/sariksadman/works/qirios/sms_tracking"
+        base_path = Path("/home/sarik/SMS_TRACKING")
+
+    script_path = base_path / "call_log_track.py"
+    python_path = base_path / "venv/bin/python3"
 
     try:
         result = subprocess.run(
-            [python_path, script_path],
-            cwd=envd,
+            [str(python_path), str(script_path)],
+            cwd=base_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
