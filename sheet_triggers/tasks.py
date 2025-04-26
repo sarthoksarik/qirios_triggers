@@ -41,7 +41,7 @@ def run_external_script_sms():
         # VPS
         base_path = Path("/home/sarik/SMS_TRACKING")
 
-    script_path = base_path / "sms_log.py"
+    script_path = base_path / "sms_track.py"
     python_path = base_path / "venv/bin/python3"
 
     try:
