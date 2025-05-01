@@ -1,0 +1,2 @@
+sudo supervisorctl restart qirios_gunicorn
+sudo supervisorctl restart qirios_celery
