@@ -79,23 +79,23 @@ WSGI_APPLICATION = "sariktriggers.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 # DATABASES = {
 #     "default": {
-#         "ENGINE": "django.db.backends.postgresql",  # Use the PostgreSQL engine
-#         "NAME": "sariktriggers_db",  # Your DB name
-#         "USER": "qirios",  # Your DB user
-#         "PASSWORD": "wasabi",  # Your DB password (IMPORTANT: Load from env var in production!)
-#         "HOST": "127.0.0.1",  # Assumes DB is on the same server
-#         # Use '127.0.0.1' if 'localhost' doesn't work
-#         "PORT": "5432",  # Default PostgreSQL port (can often be left empty '' or '5432')
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",  # Use the PostgreSQL engine
+        "NAME": "sariktriggers_db",  # Your DB name
+        "USER": "qirios",  # Your DB user
+        "PASSWORD": "wasabi",  # Your DB password (IMPORTANT: Load from env var in production!)
+        "HOST": "127.0.0.1",  # Assumes DB is on the same server
+        # Use '127.0.0.1' if 'localhost' doesn't work
+        "PORT": "5432",  # Default PostgreSQL port (can often be left empty '' or '5432')
+    }
+}
 
 
 # Password validation
