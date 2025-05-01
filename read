@@ -1,2 +1,1 @@
-sudo supervisorctl restart qirios_gunicorn
-sudo supervisorctl restart qirios_celery
+sudo supervisorctl restart qirios_gunicorn sudo supervisorctl restart qirios_celery CREATE USER qirios WITH PASSWORD 'wasabi';
