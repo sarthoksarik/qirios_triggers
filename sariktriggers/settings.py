@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-)ut8&8-w=hq^+mr8usb&mkvxql_k1--9c(tz(gmui(wq+2t7!s
 DEBUG = True
 
 ALLOWED_HOSTS = ["5.223.47.56", "localhost", "127.0.0.1"]
-CORS_ALLOW_ALL_ORIGINS = False  # 🚨 Not safe for production!
+CORS_ALLOW_ALL_ORIGINS = True  # 🚨 Not safe for production!
 
 
 # Application definition
@@ -81,15 +81,21 @@ WSGI_APPLICATION = "sariktriggers.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",  # Use the PostgreSQL engine
-        "NAME": "sariktriggers_db",  # Your DB name
-        "USER": "qirios",  # Your DB user
-        "PASSWORD": "wasabi",  # Your DB password (IMPORTANT: Load from env var in production!)
-        "HOST": "127.0.0.1",  # Assumes DB is on the same server
-        # Use '127.0.0.1' if 'localhost' doesn't work
-        "PORT": "5432",  # Default PostgreSQL port (can often be left empty '' or '5432')
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",  # Use the PostgreSQL engine
+#         "NAME": "sariktriggers_db",  # Your DB name
+#         "USER": "qirios",  # Your DB user
+#         "PASSWORD": "wasabi",  # Your DB password (IMPORTANT: Load from env var in production!)
+#         "HOST": "127.0.0.1",  # Assumes DB is on the same server
+#         # Use '127.0.0.1' if 'localhost' doesn't work
+#         "PORT": "5432",  # Default PostgreSQL port (can often be left empty '' or '5432')
+#     }
+# }
 
 
 # Password validation
