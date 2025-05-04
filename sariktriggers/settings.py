@@ -26,7 +26,15 @@ SECRET_KEY = "django-insecure-)ut8&8-w=hq^+mr8usb&mkvxql_k1--9c(tz(gmui(wq+2t7!s
 # SECURITY WARNING: don't run with debug tu rned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["5.223.47.56", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "5.223.47.56",  # Keep the IP
+    "localhost",
+    "127.0.0.1",
+    "static.56.47.223.5.clients.your-server.de",  # <-- ADD THIS
+    # If you have a real domain name pointing to the IP, add it too:
+    # 'yourdomain.com',
+    # 'www.yourdomain.com',
+]
 CORS_ALLOW_ALL_ORIGINS = True  # 🚨 Not safe for production!
 
 
