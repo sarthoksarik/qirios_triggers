@@ -62,7 +62,7 @@ ROOT_URLCONF = "sariktriggers.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -142,6 +142,13 @@ CELERY_TASK_SERIALIZER = "json"
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    # Path to the directory containing React's static assets (JS, CSS, etc.)
+    # Example: If you upload build to /home/sarik/qirios_frontend_build
+    # and assets are in /home/sarik/qirios_frontend_build/assets
+    "/home/sarik/qirios_frontend_build/assets",  # For Vite
+    # '/home/sarik/qirios_frontend_build/static', # For Create React App
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
