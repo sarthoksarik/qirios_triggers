@@ -1,0 +1,77 @@
+Phase 1: Backend API Development (Local)
+
+Models: Defined Django models (Customer, DemandTitle, Demand, PatientType, Action) with appropriate fields and relationships (ForeignKey, CharField, URLField, etc.). Set did_number as the primary key for Customer.
+Serializers: Created DRF serializers, including nested serializers (ActionSerializer, PatientTypeSerializer, etc., within CustomerSerializer), to represent the model hierarchy. Used fields = "**all**" initially on CustomerSerializer.
+Views: Developed a CustomerViewSet using ModelViewSet providing standard CRUD and:
+Overrode retrieve initially (later refined to use lookup_field and get_object).
+Added custom @action update_from_sheet (for existing customer update trigger - though less used later).
+Added custom @action create_or_update_from_sheet to handle both creating new customers and updating existing ones, calling the update_customer_from_sheet utility. Added @transaction.atomic for safety.
+Utility Function (update_customer_from_sheet): Created the function to:
+Authorize with Google Sheets API using service account credentials (urlvalidate.json).
+Open the specified Google Sheet and worksheet.
+Fetch sheet data (get_all_records).
+Delete old nested data (customer.demand_titles.all().delete()).
+Parse and structure the data from the sheet.
+Create new nested model instances (DemandTitle, Demand, etc.) linked to the customer.
+Return a success or error status.
+App URLs (actionapi/urls.py): Used DefaultRouter to register CustomerViewSet under the customers path, automatically generating standard API endpoints (/customers/, /customers/{pk}/). Ensured only router.urls were included.
+Phase 2: React Frontend Development (Local)
+
+Project Setup: Initialized a React project (Vite). Installed necessary libraries: axios, react-router-dom, bootstrap. Imported Bootstrap CSS globally.
+Global State (AppContext.jsx):
+Created React Context to manage shared state: customers, selectedCustomer, selectedTitle, selectedDemand, selectedPatientType, selectedActions, loading/error states, update status states.
+Implemented API interaction functions:
+WorkspaceCustomers: Fetched the customer list from /api/customers/. Included error handling and robust state update (Array.isArray check).
+selectCustomer, selectTitle, selectDemand: Handled user selections in the UI, resetting downstream state.
+selectPatientType: Handled clicking a patient type, setting state for highlighting, and iteratively calling addAction for all related actions.
+addAction, removeAction, clearActions: Managed the selectedActions array (used by SelectionBar), including duplicate prevention in addAction.
+updateSelectedCustomerFromSheet: Triggered the backend update (POST /api/customers/create-or-update-from-sheet/) and subsequent data refresh (GET /api/customers/{pk}/).
+Routing (App.jsx): Set up BrowserRouter, Routes, and Route components for different pages (/, /profile/:customerId, /add-customer), nested within a shared Layout component. Added a catch-all 404 route.
+Components:
+Layout: Provided consistent structure with Navbar and the top sticky section. Used <Outlet /> for page content.
+Navbar: Displayed brand, added "Add New Customer" link and "Update Current" button (conditional visibility, loading state).
+CustomerSelector: Implemented dropdown and button grid for selecting customers, displayed filetitle, used smaller fonts/layout.
+SelectionBar: Displayed selectedActions vertically as a list of dismissible badges.
+DemandTitleList: Rendered horizontal, wrapping buttons for demand titles.
+DataColumns: Evolved through several stages:
+Initially 3 interactive columns.
+Briefly a single table with rowspans.
+Finally, a 2-section Flexbox layout showing Demand name on the left and a list of clickable Patient Types on the right for each demand group, with visual separators. (Actions column removed).
+AddCustomerPage: Created a form to POST new customer data (name, did_number, sheet_url) to the backend creation/update endpoint, including feedback and refreshing the customer list via WorkspaceCustomers.
+API Base URL: Configured API_BASE_URL using Vite environment variables (import.meta.env.VITE_API_BASE_URL) loaded from .env.production during the build.
+Build Config (vite.config.js): Added base: '/static/' to correctly prefix asset URLs for deployment with Django/Whitenoise.
+Phase 3: Backend Deployment & Integration (VPS)
+
+Code Deployment: Copied actionapi folder into the existing sariktriggers Django project on the VPS (using git pull).
+Dependencies: Updated requirements.txt on VPS (added psycopg2-binary, whitenoise, gspread, etc.) and ran pip install -r requirements.txt in the virtualenv.
+Credentials File: Placed urlvalidate.json in the correct location (actionapi/utils/ relative to project root) and set appropriate read permissions (chmod 600) after troubleshooting path/symlink issues.
+Settings (settings.py Update):
+Added 'actionapi' to INSTALLED_APPS.
+Switched DATABASES config from SQLite to PostgreSQL (defined ENGINE, NAME, USER, PASSWORD, HOST, PORT).
+Added corsheaders app and middleware, configured CORS_ALLOW_ALL_ORIGINS = True (with recommendation to switch to CORS_ALLOWED_ORIGINS).
+Added whitenoise.middleware.WhiteNoiseMiddleware correctly to MIDDLEWARE.
+Defined STATIC_URL = 'static/' and STATIC_ROOT.
+Added the project templates directory to TEMPLATES['DIRS'].
+Added the React build assets source path to STATICFILES_DIRS.
+Corrected ALLOWED_HOSTS to include the hostname used in requests.
+(Outstanding: Set DEBUG = False, secured SECRET_KEY & DB Password).
+URL Configuration (sariktriggers/urls.py Update):
+Included actionapi.urls under the /api/ prefix (or /api/actions/).
+Ensured API routes were defined before the catch-all route.
+Added the catch-all route re_path(r'^.\*$', TemplateView.as_view(template_name='index.html')) as the last pattern.
+Database Setup (PostgreSQL):
+Created the PostgreSQL database (sariktriggers_db) and user (qirios).
+Granted necessary permissions (USAGE, CREATE) on the public schema to the qirios user in psql.
+Ran python manage.py migrate successfully against the PostgreSQL database to create all tables.
+Created a superuser (python manage.py createsuperuser).
+(Data migration from SQLite likely performed using dumpdata/loaddata).
+Static Files: Ran python manage.py collectstatic --noinput successfully after placing React assets in the STATICFILES_DIRS source location.
+Process Management: Restarted Gunicorn using Supervisord (sudo supervisorctl restart qirios_gunicorn) after configuration changes.
+Phase 4: Frontend Deployment (VPS - Whitenoise Method)
+
+Production Build: Ran npm run build locally (after setting base: '/static/' and configuring VITE_API_BASE_URL).
+File Deployment:
+Copied dist/index.html to /home/sarik/qirios_triggers/templates/ on VPS.
+Copied dist/assets/ (and other root assets like favicon) to /home/sarik/qirios_frontend_build/assets/ (the location specified in STATICFILES_DIRS).
+Backend Config (Done in Phase 3): Ensured Whitenoise middleware, STATIC_ROOT, STATICFILES_DIRS, TEMPLATES['DIRS'], and the catch-all route were correctly configured in Django.
+Final Steps (Done in Phase 3): Ran collectstatic and restarted Gunicorn.
