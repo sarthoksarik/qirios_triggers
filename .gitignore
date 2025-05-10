@@ -177,3 +177,4 @@ actionapi/utils/urlvalidate.json
 data.json
 staticfiles/
 data_dump.json
+templates/

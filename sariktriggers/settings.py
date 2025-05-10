@@ -39,10 +39,10 @@ CORS_ALLOW_ALL_ORIGINS = True  # 🚨 Not safe for production!
 
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",  # Your React app's origin (CHANGE PORT if different)
-    "http://127.0.0.1:5173",  # Add localhost IP version too
     "5.223.47.56",  # Keep the IP
     "static.56.47.223.5.clients.your-server.de",
+    "http://localhost:5173",  # Vite development server
+    "http://127.0.0.1:5173",  # Localhost access"
     # Add any other origins that need to make CSRF-protected requests
     # e.g., your production frontend URL
 ]
@@ -72,7 +72,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "sariktriggers.urls"
