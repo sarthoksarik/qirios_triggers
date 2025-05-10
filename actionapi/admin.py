@@ -3,7 +3,7 @@ from .models import Customer, DemandTitle, Demand, PatientType, Action
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'filetitle', 'name', 'did_number')  # Add fields you want to see
+    list_display = ('filetitle', 'name', 'did_number')  # Add fields you want to see
 
 # Keep other models registered as-is
 admin.site.register(DemandTitle)
