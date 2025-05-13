@@ -178,3 +178,4 @@ data.json
 staticfiles/
 data_dump.json
 templates/
+.DS_Store
