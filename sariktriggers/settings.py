@@ -47,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
     # e.g., your production frontend URL
 ]
 
+# X_FRAME_OPTIONS = "ALLOWALL"
 
 # Application definition
 
@@ -72,7 +73,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    #"django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "sariktriggers.urls"

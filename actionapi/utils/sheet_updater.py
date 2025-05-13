@@ -34,7 +34,7 @@ def update_customer_from_sheet(customer):
         # Step 3: Get spreadsheet title and save to customer (Unchanged)
         spreadsheet_title = sheet.title
         customer.filetitle = spreadsheet_title
-        customer.save(update_fields=["filetitle"])
+        # customer.save(update_fields=["filetitle"]) #uncomment to update sheetname in each refresh
         print(f"💾 Customer filetitle updated to: {spreadsheet_title}")
 
         # --- MODIFIED DATA READING ---
