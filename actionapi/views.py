@@ -84,7 +84,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         # If using lookup_field='did_number', get_object() here will also use 'did_number'
         customer = self.get_object()  # Uses lookup_field='did_number' now
         print(f"Triggering update_from_sheet for: {customer}")
-        result = update_customer_from_sheet(customer, new=False)
+        result = update_customer_from_sheet(customer, created=False)
 
         if result.get("status") == "success":
             return Response(result, status=status.HTTP_200_OK)
@@ -146,12 +146,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
             customer.sheet_url = sheet_url
             # Save only these potentially changed fields before triggering sheet update
             customer.save(update_fields=["name", "sheet_url"])
-            new = False
+            
 
         # --- Process Sheet Data (for both Created and Found customers) ---
         # Now 'customer' is guaranteed to be a valid Customer object (either found or created)
         print(f"Proceeding to update sheet data for: {customer}")
-        result = update_customer_from_sheet(customer, new)  # Call your utility function
+        result = update_customer_from_sheet(customer, created)  # Call your utility function
         print(f"Result from update_customer_from_sheet: {result}")
 
         # --- Handle Response ---
