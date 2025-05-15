@@ -84,7 +84,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         # If using lookup_field='did_number', get_object() here will also use 'did_number'
         customer = self.get_object()  # Uses lookup_field='did_number' now
         print(f"Triggering update_from_sheet for: {customer}")
-        result = update_customer_from_sheet(customer)
+        result = update_customer_from_sheet(customer, new=False)
 
         if result.get("status") == "success":
             return Response(result, status=status.HTTP_200_OK)
