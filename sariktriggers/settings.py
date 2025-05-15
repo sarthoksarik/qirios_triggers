@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-)ut8&8-w=hq^+mr8usb&mkvxql_k1--9c(tz(gmui(wq+2t7!s"
 
 # SECURITY WARNING: don't run with debug tu rned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "5.223.47.56",  # Keep the IP
@@ -159,13 +159,13 @@ CELERY_TASK_SERIALIZER = "json"
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     # Path to the directory containing React's static assets (JS, CSS, etc.)
     # Example: If you upload build to /home/sarik/qirios_frontend_build
     # and assets are in /home/sarik/qirios_frontend_build/assets
-    "/home/sarik/qirios_frontend_build/assets",  # For Vite
+    "/home/sarik/qirios_frontend_build",  # For Vite
     # '/home/sarik/qirios_frontend_build/static', # For Create React App
 ]
 
