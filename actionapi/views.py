@@ -146,11 +146,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
             customer.sheet_url = sheet_url
             # Save only these potentially changed fields before triggering sheet update
             customer.save(update_fields=["name", "sheet_url"])
+            new = False
 
         # --- Process Sheet Data (for both Created and Found customers) ---
         # Now 'customer' is guaranteed to be a valid Customer object (either found or created)
         print(f"Proceeding to update sheet data for: {customer}")
-        result = update_customer_from_sheet(customer)  # Call your utility function
+        result = update_customer_from_sheet(customer, new)  # Call your utility function
         print(f"Result from update_customer_from_sheet: {result}")
 
         # --- Handle Response ---
