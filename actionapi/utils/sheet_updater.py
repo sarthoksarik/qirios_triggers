@@ -41,7 +41,7 @@ def update_customer_from_sheet(customer, created):
 
         if created == True:
             customer.save(update_fields=["filetitle"]) #uncomment to update sheetname in each refresh
-        print(f"💾 Customer filetitle updated to: {spreadsheet_title}")
+        print(f"💾 Customer filetitle updated to: {sanitized_title}")
 
         # --- MODIFIED DATA READING ---
         print(f"📊 Attempting to fetch all values from worksheet...")
