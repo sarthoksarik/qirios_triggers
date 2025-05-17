@@ -182,3 +182,4 @@ templates/
 .env
 
 sariktriggers/settings/local.py
+sariktriggers/settings/local.py
