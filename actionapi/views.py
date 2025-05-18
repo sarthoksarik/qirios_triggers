@@ -12,7 +12,7 @@ from .models import Customer  # Assuming models are in the same app
 from .serializers import CustomerSerializer  # Assuming serializers are in the same app
 from .utils.sheet_updater import (
     update_customer_from_sheet,
-)  # Assuming sheet_updater is in utils subdir
+)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -146,12 +146,13 @@ class CustomerViewSet(viewsets.ModelViewSet):
             customer.sheet_url = sheet_url
             # Save only these potentially changed fields before triggering sheet update
             customer.save(update_fields=["name", "sheet_url"])
-            
 
         # --- Process Sheet Data (for both Created and Found customers) ---
         # Now 'customer' is guaranteed to be a valid Customer object (either found or created)
         print(f"Proceeding to update sheet data for: {customer}")
-        result = update_customer_from_sheet(customer, created)  # Call your utility function
+        result = update_customer_from_sheet(
+            customer, created
+        )  # Call your utility function
         print(f"Result from update_customer_from_sheet: {result}")
 
         # --- Handle Response ---

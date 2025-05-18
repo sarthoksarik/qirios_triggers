@@ -7,7 +7,7 @@ class Customer(models.Model):
     name = models.CharField(max_length=255)
     sheet_url = models.URLField(blank=True, null=True)  # New
     worksheet_name = models.CharField(max_length=255, blank=True, null=True)  # New
-    filetitle = models.CharField(max_length=255, blank=True)  # <-- New field
+    filetitle = models.CharField(max_length=255, blank=True)  #
 
     def __str__(self):
         return f"{self.name} ({self.did_number})"
@@ -40,3 +40,4 @@ class Action(models.Model):
         PatientType, related_name="actions", on_delete=models.CASCADE
     )
     description = models.TextField()
+    dire_text = models.TextField(blank=True, null=True)

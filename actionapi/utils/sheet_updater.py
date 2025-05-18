@@ -34,13 +34,15 @@ def update_customer_from_sheet(customer, created):
 
         # Step 3: Get spreadsheet title and save to customer (Unchanged)
         spreadsheet_title = sheet.title
-        
-        sanitized_title = re.sub(r'-\d+$', '', spreadsheet_title)
-        
+
+        sanitized_title = re.sub(r"-\d+$", "", spreadsheet_title)
+
         customer.filetitle = sanitized_title
 
         if created == True:
-            customer.save(update_fields=["filetitle"]) #uncomment to update sheetname in each refresh
+            customer.save(
+                update_fields=["filetitle"]
+            )  # uncomment to update sheetname in each refresh
         print(f"💾 Customer filetitle updated to: {sanitized_title}")
 
         # --- MODIFIED DATA READING ---
@@ -70,8 +72,10 @@ def update_customer_from_sheet(customer, created):
         demand_idx = 1  # Column B
         patient_type_idx = 2  # Column C
         action_idx = 3  # Column D
+        dire_idx = 4  # Column E
         print(
-            f"📝 Using column indices: Title={title_idx}, Demand={demand_idx}, PatientType={patient_type_idx}, Action={action_idx}"
+            f"📝 Using column indices: Title={title_idx}, Demand={demand_idx}, "
+            f"PatientType={patient_type_idx}, Action={action_idx}, Dire={dire_idx}"
         )
 
         # Step 5: Delete old data (Unchanged)
@@ -88,7 +92,8 @@ def update_customer_from_sheet(customer, created):
                 # Ensure row has enough columns before accessing indices
                 # Use max index + 1 for the length check
                 required_cols = (
-                    max(title_idx, demand_idx, patient_type_idx, action_idx) + 1
+                    max(title_idx, demand_idx, patient_type_idx, action_idx, dire_idx)
+                    + 1
                 )
                 if len(row) < required_cols:
                     # print(f"⚠️ Skipping sheet row {sheet_row_num} due to insufficient columns ({len(row)} needed {required_cols}). Row: {row}")
@@ -100,6 +105,7 @@ def update_customer_from_sheet(customer, created):
                 demand = str(row[demand_idx]).strip()
                 patient_type = str(row[patient_type_idx]).strip()
                 action = str(row[action_idx]).strip()
+                dire = str(row[action_idx]).strip()
 
                 # Skip row if the essential 'Title' field is missing
                 if not title:
@@ -112,9 +118,12 @@ def update_customer_from_sheet(customer, created):
                 if demand:
                     structured_data[title].setdefault(demand, {})
                     if patient_type:
-                        structured_data[title][demand].setdefault(patient_type, [])
+                        structured_data[title][demand].setdefault(patient_type, {})
                         if action:
-                            structured_data[title][demand][patient_type].append(action)
+                            structured_data[title][demand][patient_type].append(
+                                {"description": action, "dire_text": dire}
+                            )
+
                 processed_rows_count += 1
 
             except IndexError:
@@ -143,8 +152,13 @@ def update_customer_from_sheet(customer, created):
                 d = Demand.objects.create(demand_title=dt, name=demand_name)
                 for patient_type_name, actions in patient_types.items():
                     pt = PatientType.objects.create(demand=d, name=patient_type_name)
-                    for action_desc in actions:
-                        Action.objects.create(patient_type=pt, description=action_desc)
+                    for action_desc, dires in actions.items():
+                        Action.objects.create(
+                            patient_type=pt,
+                            description=action_desc["description"],
+                            dire_text=action_desc["dire_text"],
+                        )
+
         print(f"💾 Database updated for customer {customer.did_number}.")
 
         # --- Success Response ---
