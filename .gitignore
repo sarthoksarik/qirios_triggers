@@ -183,3 +183,4 @@ templates/
 
 sariktriggers/settings/local.py
 sariktriggers/settings/local.py
+actionapi/utils/urlsvalidate.json
