@@ -179,3 +179,8 @@ staticfiles/
 data_dump.json
 templates/
 .DS_Store
+.env
+
+sariktriggers/settings/local.py
+sariktriggers/settings/local.py
+actionapi/utils/urlsvalidate.json

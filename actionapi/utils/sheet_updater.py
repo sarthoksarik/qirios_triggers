@@ -5,9 +5,11 @@ from google.oauth2.service_account import Credentials
 from ..models import DemandTitle, Demand, PatientType, Action
 import traceback  # Import traceback for better error logging
 import re
+from collections import defaultdict
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GOOGLE_SHEET_CREDENTIALS_FILE = os.path.join(BASE_DIR, "utils", "urlvalidate.json")
+BASE_DIR = Path(__file__).resolve().parent.parent
+GOOGLE_SHEET_CREDENTIALS_FILE = BASE_DIR / "utils" / "urlvalidate.json"
 
 
 def update_customer_from_sheet(customer, created):
@@ -34,13 +36,15 @@ def update_customer_from_sheet(customer, created):
 
         # Step 3: Get spreadsheet title and save to customer (Unchanged)
         spreadsheet_title = sheet.title
-        
-        sanitized_title = re.sub(r'-\d+$', '', spreadsheet_title)
-        
+
+        sanitized_title = re.sub(r"-\d+$", "", spreadsheet_title)
+
         customer.filetitle = sanitized_title
 
-        if created == True:
-            customer.save(update_fields=["filetitle"]) #uncomment to update sheetname in each refresh
+        if created:
+            customer.save(
+                update_fields=["filetitle"]
+            )  # uncomment to update sheetname in each refresh
         print(f"💾 Customer filetitle updated to: {sanitized_title}")
 
         # --- MODIFIED DATA READING ---
@@ -69,9 +73,12 @@ def update_customer_from_sheet(customer, created):
         title_idx = 0  # Column A
         demand_idx = 1  # Column B
         patient_type_idx = 2  # Column C
-        action_idx = 3  # Column D
+        action_desc_idx = 3  # Column D
+        dire_text_idx = 4  # Column E
         print(
-            f"📝 Using column indices: Title={title_idx}, Demand={demand_idx}, PatientType={patient_type_idx}, Action={action_idx}"
+            f"Using column indices: Title={title_idx}, Demand={demand_idx},"
+            f" PatientType={patient_type_idx}, ActionDesc={action_desc_idx},"
+            f" DireText={dire_text_idx}"
         )
 
         # Step 5: Delete old data (Unchanged)
@@ -79,53 +86,53 @@ def update_customer_from_sheet(customer, created):
         print("🧹 Old data deleted.")
 
         # Step 6: Build nested data structure in memory using indices
-        structured_data = {}
+        structured_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         processed_rows_count = 0
         skipped_rows_count = 0
         for row_idx, row in enumerate(data_rows):
-            sheet_row_num = row_idx + 3  # Actual sheet row number (1-based)
+            sheet_row_num = row_idx + 3
             try:
-                # Ensure row has enough columns before accessing indices
-                # Use max index + 1 for the length check
-                required_cols = (
-                    max(title_idx, demand_idx, patient_type_idx, action_idx) + 1
+                # Check if row has enough columns for the first 4 essential fields
+                min_essential_cols = action_desc_idx + 1
+                if len(row) < min_essential_cols:
+                    # print(f"⚠️ Skipping sheet row {sheet_row_num} due to insufficient columns for essential data ({len(row)} found, {min_essential_cols} expected). Row: {row}")
+                    skipped_rows_count += 1
+                    continue
+
+                title_name = str(row[title_idx]).strip()
+                demand_name = str(row[demand_idx]).strip()
+                patient_type_name = str(row[patient_type_idx]).strip()
+                action_description = str(row[action_desc_idx]).strip()
+
+                # --- NEW Condition: Skip row if any of the first 4 columns are empty ---
+                if (
+                    not title_name
+                    or not demand_name
+                    or not patient_type_name
+                    or not action_description
+                ):
+                    # print(f"Skipping sheet row {sheet_row_num} due to missing data in one of the first four essential columns.")
+                    skipped_rows_count += 1
+                    continue
+
+                # Read dire_text (5th column). If column doesn't exist for this row, or is empty, it will be an empty string.
+                current_dire_text = ""
+                if len(row) > dire_text_idx:  # Check if 5th column exists for this row
+                    current_dire_text = str(row[dire_text_idx]).strip()
+                # else:
+                # print(f"ℹ️ Sheet row {sheet_row_num} has no 5th column for dire_text (or it's beyond row length). Dire will be empty.")
+
+                # If we reach here, the first four columns are present.
+                # Action will be created; dire_text will be its value or an empty string.
+                # Using defaultdict, direct assignment works:
+                structured_data[title_name][demand_name][patient_type_name].append(
+                    {"description": action_description, "dire_text": current_dire_text}
                 )
-                if len(row) < required_cols:
-                    # print(f"⚠️ Skipping sheet row {sheet_row_num} due to insufficient columns ({len(row)} needed {required_cols}). Row: {row}")
-                    skipped_rows_count += 1
-                    continue
-
-                # Get values using indices, default to empty string, convert to string
-                title = str(row[title_idx]).strip()
-                demand = str(row[demand_idx]).strip()
-                patient_type = str(row[patient_type_idx]).strip()
-                action = str(row[action_idx]).strip()
-
-                # Skip row if the essential 'Title' field is missing
-                if not title:
-                    # print(f"Skipping sheet row {sheet_row_num} due to missing Title.")
-                    skipped_rows_count += 1
-                    continue
-
-                # Build the nested dictionary
-                structured_data.setdefault(title, {})
-                if demand:
-                    structured_data[title].setdefault(demand, {})
-                    if patient_type:
-                        structured_data[title][demand].setdefault(patient_type, [])
-                        if action:
-                            structured_data[title][demand][patient_type].append(action)
                 processed_rows_count += 1
 
-            except IndexError:
-                # Should be less likely with the length check above, but catches edge cases
-                print(
-                    f"⚠️ Skipping sheet row {sheet_row_num} due to IndexError. Row data: {row}"
-                )
-                skipped_rows_count += 1
-                continue
-            except Exception as inner_ex:
-                # Catch other potential errors during row processing
+            except (
+                Exception
+            ) as inner_ex:  # Catch any other unexpected error for this row
                 print(
                     f"⚠️ Error processing sheet row {sheet_row_num}: {inner_ex}. Row data: {row}"
                 )
@@ -133,32 +140,39 @@ def update_customer_from_sheet(customer, created):
                 continue
 
         print(
-            f"🏗️ Structured data built. Processed={processed_rows_count}, Skipped={skipped_rows_count} (starting from row 3)"
+            f"🏗️ Structured data built with defaultdict. Processed={processed_rows_count}, Skipped={skipped_rows_count}"
         )
 
         # Step 7: Save to DB with full nesting (Unchanged logic)
-        for title_name, demands in structured_data.items():
-            dt = DemandTitle.objects.create(customer=customer, title=title_name)
-            for demand_name, patient_types in demands.items():
-                d = Demand.objects.create(demand_title=dt, name=demand_name)
-                for patient_type_name, actions in patient_types.items():
-                    pt = PatientType.objects.create(demand=d, name=patient_type_name)
-                    for action_desc in actions:
-                        Action.objects.create(patient_type=pt, description=action_desc)
+        for title_name_db, demands_db in structured_data.items():
+            dt = DemandTitle.objects.create(customer=customer, title=title_name_db)
+            for demand_name_db, patient_types_db in demands_db.items():
+                d = Demand.objects.create(demand_title=dt, name=demand_name_db)
+                for (
+                    patient_type_name_db,
+                    actions_list_of_dicts,
+                ) in patient_types_db.items():
+                    pt = PatientType.objects.create(demand=d, name=patient_type_name_db)
+                    for action_data_dict in actions_list_of_dicts:
+                        Action.objects.create(
+                            patient_type=pt,
+                            description=action_data_dict["description"],
+                            dire_text=action_data_dict["dire_text"],
+                        )
         print(f"💾 Database updated for customer {customer.did_number}.")
 
-        # --- Success Response ---
         return {
             "status": "success",
             "records_added": processed_rows_count,
             "spreadsheet_title": spreadsheet_title,
-            "message": f"Sheet processed successfully. Processed {processed_rows_count} data rows starting from row 3.",
+            "message": f"Sheet processed successfully. Processed {processed_rows_count} data rows.",
         }
 
     # --- Enhanced Error Handling (Keep as is) ---
+    # Exception handling (keep enhanced version)
     except gspread.exceptions.APIError as e:
         print(f"❌ gspread API Error: {e}")
-        error_details = f"Google Sheets API error ({e.response.status_code} {e.response.reason}). Check sheet permissions/URL or API quotas."
+        error_details = f"Google Sheets API error ({e.response.status_code} {e.response.reason}). Check permissions/URL or quotas."
         try:
             error_json = e.response.json()
             error_message = error_json.get("error", {}).get("message", "")
@@ -168,27 +182,20 @@ def update_customer_from_sheet(customer, created):
             pass
         return {"status": "error", "error": error_details}
     except gspread.exceptions.SpreadsheetNotFound:
-        print(f"❌ Spreadsheet not found with ID {sheet_id}.")
-        return {
-            "status": "error",
-            "error": "Google Sheet not found. Check the Sheet URL.",
-        }
+        print(f"❌ Spreadsheet not found for ID extracted from URL.")
+        return {"status": "error", "error": "Google Sheet not found. Check URL."}
     except gspread.exceptions.WorksheetNotFound:
-        print(f"❌ Worksheet 'detail' not found in sheet ID {sheet_id}.")
-        return {
-            "status": "error",
-            "error": "Worksheet named 'detail' not found in the Google Sheet.",
-        }
+        print(f"❌ Worksheet 'detail' not found in sheet.")
+        return {"status": "error", "error": "Worksheet 'detail' not found."}
     except FileNotFoundError:
-        print(f"❌ Credentials file not found at {GOOGLE_SHEET_CREDENTIALS_FILE}")
-        return {
-            "status": "error",
-            "error": "Server configuration error: Could not find credentials file.",
-        }
+        print(f"❌ Credentials file not found: {GOOGLE_SHEET_CREDENTIALS_FILE}")
+        return {"status": "error", "error": "Server config error: Credentials."}
     except Exception as e:
-        print(f"❌ Unexpected Exception in update_customer_from_sheet: {e}")
+        print(
+            f"❌ Unexpected Exception in update_customer_from_sheet: {type(e).__name__} - {e}"
+        )
         print(traceback.format_exc())
         return {
             "status": "error",
-            "error": f"An unexpected server error occurred during sheet processing: {str(e)}",
+            "error": f"Unexpected server error during sheet processing: {str(e)}",
         }
