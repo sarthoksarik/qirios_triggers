@@ -5,6 +5,9 @@ from django.db import models
 class Customer(models.Model):
     did_number = models.CharField(max_length=10, primary_key=True)
     name = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    note1 = models.TextField()
+    note2 = models.TextField()
     sheet_url = models.URLField(blank=True, null=True)  # New
     worksheet_name = models.CharField(max_length=255, blank=True, null=True)  # New
     filetitle = models.CharField(max_length=255, blank=True)  #
