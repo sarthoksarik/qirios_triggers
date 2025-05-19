@@ -64,8 +64,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 # --- Corrected CSRF_TRUSTED_ORIGINS (schemes for http, can include port if non-standard) ---
 CSRF_TRUSTED_ORIGINS = [
-    "http://5.223.47.56",  # Assuming default port 80 or handled by reverse proxy
-    "http://static.56.47.223.5.clients.your-server.de",
+    "5.223.47.56",  # Assuming default port 80 or handled by reverse proxy
+    "static.56.47.223.5.clients.your-server.de",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
