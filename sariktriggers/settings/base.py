@@ -124,4 +124,5 @@ CELERY_TASK_SERIALIZER = "json"
 
 WSGI_APPLICATION = "sariktriggers.wsgi.application"
 # ... (rest of your base.py settings like DATABASES, etc.)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 print("DEBUG: End of base.py parsing attempt.")
