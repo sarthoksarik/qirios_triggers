@@ -25,10 +25,10 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 ALLOWED_HOSTS = [
-    "http://5.223.47.56",  # Keep the IP
+    "5.223.47.56",  # Keep the IP
     "localhost",
     "127.0.0.1",
-    "http://static.56.47.223.5.clients.your-server.de",  # <-- ADD THIS
+    "static.56.47.223.5.clients.your-server.de",  # <-- ADD THIS
     # If you have a real domain name pointing to the IP, add it too:
     # 'yourdomain.com',
     # 'www.yourdomain.com',
@@ -37,8 +37,8 @@ CORS_ALLOW_ALL_ORIGINS = True  # 🚨 Not safe for production!
 
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
-    "http://5.223.47.56",  # Keep the IP
-    "http://static.56.47.223.5.clients.your-server.de",
+    "5.223.47.56",  # Keep the IP
+    "static.56.47.223.5.clients.your-server.de",
     "http://localhost:5173",  # Vite development server
     "http://127.0.0.1:5173",  # Localhost access"
     # Add any other origins that need to make CSRF-protected requests
