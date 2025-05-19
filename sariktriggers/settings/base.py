@@ -32,11 +32,14 @@ print(f"DEBUG: Value of SECRET_KEY from os.getenv(): '{SECRET_KEY_FROM_ENV}'")
 if not SECRET_KEY_FROM_ENV:
     # If SECRET_KEY isn't found, Django will fail. Let's make it fail loudly here.
     raise ValueError(
-        "CRITICAL SETTINGS ERROR: SECRET_KEY is not loaded from environment! Check .env file path and content."
+        "CRITICAL SETTINGS ERROR: SECRET_KEY is not loaded from environment!"
+        " Check .env file path and content."
     )
 SECRET_KEY = SECRET_KEY_FROM_ENV
 # --- End Critical Check ---
-
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
+}
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG will be set by prod.py or your .env for prod
 DEBUG_FROM_ENV = os.getenv("DEBUG", "True").lower() in (
@@ -115,6 +118,9 @@ TEMPLATES = [
         },
     },
 ]
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 
 WSGI_APPLICATION = "sariktriggers.wsgi.application"
 # ... (rest of your base.py settings like DATABASES, etc.)
