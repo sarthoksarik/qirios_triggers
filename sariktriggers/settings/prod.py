@@ -1,9 +1,13 @@
-from sariktriggers.settings.base import *
+# sariktriggers/settings/prod.py
+print("DEBUG: Attempting to load settings from prod.py")
+from sariktriggers.settings.base import *  # Imports all settings from base, including SECRET_KEY
+
+# DEBUG is set in .env for production, base.py will pick it up.
+# If you want to be explicit for prod here:
+# DEBUG = False
 
 STATICFILES_DIRS = [
-    # Path to the directory containing React's static assets (JS, CSS, etc.)
-    # Example: If you upload build to /home/sarik/qirios_frontend_build
-    # and assets are in /home/sarik/qirios_frontend_build/assets
-    "/home/sarik/qirios_frontend_build",  # For Vite
-    # '/home/sarik/qirios_frontend_build/static', # For Create React App
+    "/home/sarik/qirios_frontend_build",
 ]
+print(f"DEBUG: STATICFILES_DIRS in prod.py set to: {STATICFILES_DIRS}")
+print("DEBUG: End of prod.py parsing attempt.")
