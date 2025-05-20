@@ -4,7 +4,7 @@ from django.db import models
 # Main customer model with their DID number and name
 class Customer(models.Model):
     did_number = models.CharField(max_length=10, primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     note1 = models.TextField(blank=True, null=True)
     note2 = models.TextField(blank=True, null=True)
