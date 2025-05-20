@@ -1,12 +1,14 @@
 # actionapi/utils/sheet_updater.py
 import os
-import gspread
-from google.oauth2.service_account import Credentials
-from ..models import DemandTitle, Demand, PatientType, Action
-import traceback  # Import traceback for better error logging
 import re
+import traceback  # Import traceback for better error logging
 from collections import defaultdict
 from pathlib import Path
+
+import gspread
+from google.oauth2.service_account import Credentials
+
+from ..models import Action, Demand, DemandTitle, PatientType
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 GOOGLE_SHEET_CREDENTIALS_FILE = BASE_DIR / "utils" / "urlvalidate.json"
@@ -63,7 +65,7 @@ def update_customer_from_sheet(customer, created):
                 ("note2", note2),
                 ("note3", note3),
             ]
-            if value and not setattr(customer, attr, value)
+            if not setattr(customer, attr, value)
         ]
         customer.save(update_fields=update_fields)
         # Check if sheet has data starting from row 3 (index 2)
