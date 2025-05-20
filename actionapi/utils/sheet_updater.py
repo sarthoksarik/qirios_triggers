@@ -51,7 +51,21 @@ def update_customer_from_sheet(customer, created):
         print(f"📊 Attempting to fetch all values from worksheet...")
         # Step 4: Read all rows as lists using get_values()
         all_values = worksheet.get_values()
-
+        first_row = all_values[0]
+        customer_name, customer_address, note1, note2, note3 = first_row[0:5]
+        print("additional fields", customer_name, customer_address, note1, note2, note3)
+        update_fields = [
+            attr
+            for attr, value in [
+                ("name", customer_name),
+                ("address", customer_address),
+                ("note1", note1),
+                ("note2", note2),
+                ("note3", note3),
+            ]
+            if value and not setattr(customer, attr, value)
+        ]
+        customer.save(update_fields=update_fields)
         # Check if sheet has data starting from row 3 (index 2)
         if not all_values or len(all_values) < 3:
             print("⚠️ Sheet does not contain data starting from row 3.")
