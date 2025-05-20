@@ -1,13 +1,11 @@
 # actionapi/views.py
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
-from django.http import Http404  # Import Http404
 from django.db import transaction  # Import transaction
+from django.http import Http404  # Import Http404
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 # from django.db import transaction # Consider using transactions later if needed
-
 from .models import Customer  # Assuming models are in the same app
 from .serializers import CustomerSerializer  # Assuming serializers are in the same app
 from .utils.sheet_updater import update_customer_from_sheet
@@ -102,7 +100,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         )
 
         # Validate required fields
-        if not name or not did_number or not sheet_url:
+        if not did_number or not sheet_url:
             return Response(
                 {"error": "Fields 'name', 'did_number', and 'sheet_url' are required."},
                 status=status.HTTP_400_BAD_REQUEST,
