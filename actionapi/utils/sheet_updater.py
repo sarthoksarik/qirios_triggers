@@ -109,7 +109,7 @@ def update_customer_from_sheet(customer, created):
             sheet_row_num = row_idx + 3
             try:
                 # Check if row has enough columns for the first 4 essential fields
-                min_essential_cols = action_desc_idx + 1
+                min_essential_cols = patient_type_idx + 1
                 if len(row) < min_essential_cols:
                     # print(f"⚠️ Skipping sheet row {sheet_row_num} due to insufficient columns for essential data ({len(row)} found, {min_essential_cols} expected). Row: {row}")
                     skipped_rows_count += 1
@@ -118,29 +118,26 @@ def update_customer_from_sheet(customer, created):
                 title_name = str(row[title_idx]).strip()
                 demand_name = str(row[demand_idx]).strip()
                 patient_type_name = str(row[patient_type_idx]).strip()
-                action_description = str(row[action_desc_idx]).strip()
+                # action_description = str(row[action_desc_idx]).strip()
 
                 # --- NEW Condition: Skip row if any of the first 4 columns are empty ---
                 if (
-                    not title_name
-                    or not demand_name
-                    or not patient_type_name
-                    or not action_description
+                    not title_name or not demand_name or not patient_type_name
+                    # or not action_description
                 ):
                     # print(f"Skipping sheet row {sheet_row_num} due to missing data in one of the first four essential columns.")
                     skipped_rows_count += 1
                     continue
 
-                # Read dire_text (5th column). If column doesn't exist for this row, or is empty, it will be an empty string.
-                current_dire_text = ""
-                if len(row) > dire_text_idx:  # Check if 5th column exists for this row
-                    current_dire_text = str(row[dire_text_idx]).strip()
-                # else:
-                # print(f"ℹ️ Sheet row {sheet_row_num} has no 5th column for dire_text (or it's beyond row length). Dire will be empty.")
+                if len(row) > action_desc_idx:
+                    action_description = str(row[action_desc_idx]).strip()
 
-                # If we reach here, the first four columns are present.
-                # Action will be created; dire_text will be its value or an empty string.
-                # Using defaultdict, direct assignment works:
+                # Safely get dire_text (column E), default to empty string if missing
+                current_dire_text = ""
+                if len(row) > dire_text_idx:
+                    current_dire_text = str(row[dire_text_idx]).strip()
+
+                # Now, append the data. It's okay if action_description is empty.
                 structured_data[title_name][demand_name][patient_type_name].append(
                     {"description": action_description, "dire_text": current_dire_text}
                 )

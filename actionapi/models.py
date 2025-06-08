@@ -43,5 +43,5 @@ class Action(models.Model):
     patient_type = models.ForeignKey(
         PatientType, related_name="actions", on_delete=models.CASCADE
     )
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     dire_text = models.TextField(blank=True, null=True)
