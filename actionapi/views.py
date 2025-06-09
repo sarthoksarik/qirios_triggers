@@ -1,4 +1,5 @@
 # actionapi/views.py
+from django.conf import settings
 from django.db import transaction  # Import transaction
 from django.http import Http404  # Import Http404
 from rest_framework import status, viewsets
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 # from django.db import transaction # Consider using transactions later if needed
 from .models import Customer  # Assuming models are in the same app
 from .serializers import CustomerSerializer  # Assuming serializers are in the same app
+from .tasks import update_all_customers_task
 from .utils.sheet_updater import update_customer_from_sheet
 
 
@@ -178,6 +180,35 @@ class CustomerViewSet(viewsets.ModelViewSet):
             # You might want more complex logic here later (e.g., delete the created user on sheet failure)
             return Response(
                 {"error": error_message, "details": result},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @action(detail=False, methods=["post"], url_path="trigger-all-updates")
+    def trigger_all_updates(self, request):
+        """
+        Triggers a background Celery task to update all customers from their sheets.
+        """
+        provided_key = request.headers.get("X-API-KEY")
+        if not provided_key or provided_key != settings.APPS_SCRIPT_API_KEY:
+            return Response(
+                {"error": "Unauthorized: Invalid or missing API key."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        try:
+            # Dispatch the task to your Celery workers
+            update_all_customers_task.delay()
+
+            # Immediately return a response to the client
+            return Response(
+                {
+                    "message": "Update process for all customers has been started in the background."
+                },
+                status=status.HTTP_202_ACCEPTED,
+            )
+        except Exception as e:
+            # Handle cases where celery might be down or misconfigured
+            return Response(
+                {"error": f"Failed to trigger update task: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
