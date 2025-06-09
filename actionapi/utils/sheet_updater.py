@@ -19,7 +19,7 @@ def update_customer_from_sheet(customer, created):
     Fetches data from the customer's Google Sheet (starting from row 3),
     processes it based on fixed column order, and updates related models.
     """
-    with transaction.atomic:
+    with transaction.atomic():
         try:
             # Step 1: Setup Google Sheets client (Unchanged)
             scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
