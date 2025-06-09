@@ -3,7 +3,7 @@
 import os
 
 from celery import Celery
-from dotenv import load_dotenv  # <<<--- 1. IMPORT the function
+from dotenv import load_dotenv
 
 # 2. CALL the function at the top to load your .env file
 load_dotenv()

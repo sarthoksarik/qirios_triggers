@@ -1,6 +1,7 @@
 # base.py
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,6 +23,7 @@ load_dotenv(env_path)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
+APPS_SCRIPT_API_KEY = os.getenv("APPS_SCRIPT_API_KEY")
 
 
 ALLOWED_HOSTS = [
